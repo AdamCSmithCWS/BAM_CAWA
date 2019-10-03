@@ -7,4 +7,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-Describe your project.
+This is an analysis to estimate population trends for Canada Warbler using the data from the North American Breeding Bird Survey (BBS) from 2002 through 2012. The primary purpose of this analysis is to compare trends estimated here with trends for the same time-period estimated from the Boreal Avian Modeling project (BAM).
+I will be using the package bbsBayes to estimate the trends for the standard CWS analytical strata. I will select the "slope" model for the trends.
+
+

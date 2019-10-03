@@ -8,4 +8,77 @@ editor_options:
   chunk_output_type: console
 ---
 
-Welcome to my research website.
+This is an analysis to estimate population trends for Canada Warbler using the data from the North American Breeding Bird Survey (BBS) from 2002 through 2012. The primary purpose of this analysis is to compare trends estimated here with trends for the same time-period estimated from the Boreal Avian Modeling project (BAM).
+I will be using the package bbsBayes to estimate the trends for the standard CWS analytical strata. I will select the "slope" model for the trends.
+
+```{r echo=TRUE}
+library(bbsBayes)
+library(ggplot2)
+
+```
+Downloading the BBS data, data-version 2018
+```{r eval = F}
+fetch_bbs_data()
+yes ##this responds to the data liability query from the BBS ftp site
+## **********************
+## *    Data Citation   *
+## **********************
+## Pardieck, K.L., D.J. Ziolkowski Jr., M. Lutmerding, V. Aponte and M-A.R. Hudson. 2019. North American Breeding Bird Survey Dataset 1966 - 2018, version 2018.0. U.S. Geological Survey, Patuxent Wildlife Research Center. https://doi.org/10.5066/P9HE8XYJ.
+
+````
+Stratify the data using the standard CWS strata (BCR by province intersections)
+```{r cache = T}
+bbs_strat = stratify(by = "bbs_cws",quiet = T)
+
+```
+
+Prepare the data for jags, selecting the start and end years, as well as the species and model
+```{r cache = T}
+bbs_data = prepare_jags_data(strat_data = bbs_strat,
+                             species_to_run = "Canada Warbler",
+                             model = "slope",
+                             min_year = 2002,
+                             max_year = 2012,
+                             quiet = T)
+```
+
+Run the model in jags, tracking the random and fixed slope effects as well as the annual indices
+```{r cache = T}
+mod = run_model(jags_data = bbs_data,
+                parameters_to_save = c("n","beta","BETA"),
+                n_adapt = 1000)
+```
+
+alternate vresions of some bbsBayes functions
+```{r echo=F}
+source("c:/functions/generate_strata_indices_new.r")
+source("c:/functions/generate_strata_trends_new.r")
+source("c:/functions/generate_cont_indices_new.r")
+source("c:/functions/generate_cont_trend_new.r")
+
+
+```
+
+calculate indices
+```{r}
+ind.s = generate_strata_indices(mod)
+trends.s = generate_strata_trends(mod)
+
+
+ind.c = generate_cont_indices(mod)
+trends.c = generate_cont_trends(mod)
+
+
+
+```
+
+graph the indices and map the trends
+```{r}
+plot_cont_indices(indices = ind.c)
+generate_map(trend = treds.s)
+
+```
+
+
+
+
