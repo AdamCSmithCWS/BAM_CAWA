@@ -1,7 +1,7 @@
-name: "BAM_CAWA"
+name: BAM_CAWA
 output_dir: ../docs
 navbar:
-  title: "BAM_CAWA"
+  title: BAM_CAWA
   left:
   - text: Home
     href: index.html
@@ -9,6 +9,10 @@ navbar:
     href: about.html
   - text: License
     href: license.html
+  right:
+  - icon: fa-github
+    text: Source code
+    href: https://github.com/AdamCSmithCWS/BAM_CAWA
 output:
   workflowr::wflow_html:
     toc: yes
