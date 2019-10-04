@@ -46,36 +46,30 @@ Run the model in jags, tracking the random and fixed slope effects as well as th
 ```{r cache = T}
 mod = run_model(jags_data = bbs_data,
                 parameters_to_save = c("n","beta","BETA"),
-                n_adapt = 1000)
+                n_adapt = 1000,
+                parallel = T)
 ```
 
-alternate vresions of some bbsBayes functions
-```{r echo=F}
-source("c:/functions/generate_strata_indices_new.r")
-source("c:/functions/generate_strata_trends_new.r")
-source("c:/functions/generate_cont_indices_new.r")
-source("c:/functions/generate_cont_trend_new.r")
-
-
-```
 
 calculate indices
 ```{r}
 ind.s = generate_strata_indices(mod)
-trends.s = generate_strata_trends(mod)
+trends.s = generate_strata_trends(ind.s)
 
 
 ind.c = generate_cont_indices(mod)
-trends.c = generate_cont_trends(mod)
+trends.c = generate_cont_trend(ind.c)
 
 
 
 ```
 
+detach("package:bbsBayes",unload = T)
+
 graph the indices and map the trends
 ```{r}
-plot_cont_indices(indices = ind.c)
-generate_map(trend = treds.s)
+plot_cont_indices(indices = ind.c$data_summary)
+generate_map(trend = trends.s)
 
 ```
 
