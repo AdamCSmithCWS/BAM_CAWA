@@ -16,24 +16,31 @@ library(bbsBayes)
 library(ggplot2)
 
 ```
-Downloading the BBS data, data-version 2018
-```{r eval = F}
-fetch_bbs_data()
-yes ##this responds to the data liability query from the BBS ftp site
+
+Loading the BBS data, data-version 2018
+Pardieck, K.L., D.J. Ziolkowski Jr., M. Lutmerding, V. Aponte and M-A.R. Hudson. 2019. North American Breeding Bird Survey Dataset 1966 - 2018, version 2018.0. U.S. Geological Survey, Patuxent Wildlife Research Center. https://doi.org/10.5066/P9HE8XYJ.
+
+The user must have already downloaded the BBS data
+
+```{r eval = T, echo=F}
+#fetch_bbs_data() #this was run previously
+#yes ##this responds to the data liability query from the BBS ftp site
 ## **********************
 ## *    Data Citation   *
 ## **********************
 ## Pardieck, K.L., D.J. Ziolkowski Jr., M. Lutmerding, V. Aponte and M-A.R. Hudson. 2019. North American Breeding Bird Survey Dataset 1966 - 2018, version 2018.0. U.S. Geological Survey, Patuxent Wildlife Research Center. https://doi.org/10.5066/P9HE8XYJ.
 
-````
+#load_bbs_data()
+
+```
 Stratify the data using the standard CWS strata (BCR by province intersections)
-```{r cache = T}
+```{r cache = F}
 bbs_strat = stratify(by = "bbs_cws",quiet = T)
 
 ```
 
 Prepare the data for jags, selecting the start and end years, as well as the species and model
-```{r cache = T}
+```{r cache = F}
 bbs_data = prepare_jags_data(strat_data = bbs_strat,
                              species_to_run = "Canada Warbler",
                              model = "slope",
@@ -47,6 +54,9 @@ Run the model in jags, tracking the random and fixed slope effects as well as th
 mod = run_model(jags_data = bbs_data,
                 parameters_to_save = c("n","beta","BETA"),
                 n_adapt = 1000,
+                n_burnin = 30000,
+                n_iter = 80000,
+                n_thin = 10,
                 parallel = T)
 ```
 
@@ -54,25 +64,46 @@ mod = run_model(jags_data = bbs_data,
 calculate indices
 ```{r}
 ind.s = generate_strata_indices(mod)
-trends.s = generate_strata_trends(ind.s)
+trends.s = generate_strata_trends(ind.s,slope = T)
 
 
 ind.c = generate_cont_indices(mod)
-trends.c = generate_cont_trend(ind.c)
+trends.c = generate_cont_trend(ind.c,slope = T)
 
+trendsout = rbind(trends.c,trends.s)
+write.csv(trendsout,"all CAWA stratum and continental trends 2002 2012.csv")
+
+ind.reg = generate_regional_indices(mod)
+trends.ind = generate_regional_trends(ind.reg)
 
 
 ```
 
-detach("package:bbsBayes",unload = T)
 
 graph the indices and map the trends
 ```{r}
-plot_cont_indices(indices = ind.c$data_summary)
-generate_map(trend = trends.s)
+
+generate_map(trend = trends.s, stratify_by = "bbs_cws")
+plot_cont_indices(indices_list = ind.c,add_observed_means = T)
+tp = plot_strata_indices(indices_list = ind.s,add_observed_means = T)
+print(tp)
+```
+
+getting the unique list of routes and years included
+```{r echo=F}
+orig.data = get_prepared_data(jags_data = bbs_data)
+
+route.list = unique(orig.data[,c("Year","Stratum","Route")])
+
+write.csv(route.list,"list of routes by years included in CAWA trends.csv")
+
 
 ```
 
-
-
-
+```{r}
+library("rmarkdown")
+# Create analysis/file.html
+render("analysis/index.Rmd", html_document())
+# Create analysis/file.pdf
+render("analysis/index.Rmd", pdf_document())
+```
