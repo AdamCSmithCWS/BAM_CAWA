@@ -1,5 +1,6 @@
 # BAM_CAWA
 
-A [workflowr][] project.
+Estimating population trends for Canada Warbler using BBS data, 2002 - 2012.
 
-[workflowr]: https://github.com/jdblischak/workflowr
+
+
