@@ -73,8 +73,15 @@ trends.c = generate_cont_trend(ind.c,slope = T)
 trendsout = rbind(trends.c,trends.s)
 write.csv(trendsout,"all CAWA stratum and continental trends 2002 2012.csv")
 
+
+#
+source("C:/Users/smithac/Documents/GitHub/temp/generate-regional-indices.R")
+source("C:/Users/smithac/Documents/GitHub/temp/generate-regional-trends.R")
+
 ind.reg = generate_regional_indices(mod)
-trends.ind = generate_regional_trends(ind.reg)
+trends.reg = generate_regional_trend(ind.reg)
+
+write.csv(trends.reg,"all CAWA regional trends 2002 2012.csv")
 
 
 ```
@@ -87,6 +94,9 @@ generate_map(trend = trends.s, stratify_by = "bbs_cws")
 plot_cont_indices(indices_list = ind.c,add_observed_means = T)
 tp = plot_strata_indices(indices_list = ind.s,add_observed_means = T)
 print(tp)
+
+tp2 = plot_strata_indices(indices_list = ind.reg,add_observed_means = T)
+print(tp2)
 ```
 
 getting the unique list of routes and years included
@@ -101,9 +111,9 @@ write.csv(route.list,"list of routes by years included in CAWA trends.csv")
 ```
 
 ```{r}
-library("rmarkdown")
-# Create analysis/file.html
-render("analysis/index.Rmd", html_document())
-# Create analysis/file.pdf
-render("analysis/index.Rmd", pdf_document())
+# library("rmarkdown")
+# # Create analysis/file.html
+# render("analysis/index.Rmd", html_document())
+# # Create analysis/file.pdf
+# render("analysis/index.Rmd", pdf_document())
 ```
